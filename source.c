@@ -8,11 +8,11 @@ typedef struct Bolum // bolum bilgilerini iceren struct
 	char bolumAd[30];
 } bolum;
 
-typedef struct kisi
+typedef struct ogr
 {
 	int numara;
 	char tc[20], adSoyad[20], dTarihi[20], dYeri[20], cinsiyet, adres[30], tel[20], ePosta[30];
-	int askerlikDurumu, BolumID, durum;
+	int askerlikDurumu, BolumID, durum, ogrenciID;
 } ogr;
 
 void bolumListele();
@@ -30,13 +30,13 @@ void OgrenciEkle()
 	}
 	numara += 1;
 
-	o1.numara = numara;
+	o1.ogrenciID = numara;
 	fwrite(&numara, sizeof(int), 1, numPtr);
 	fclose(numPtr);
+    printf("Ad-Soyad         : ");
+	scanf(" %[^\n]s", o1.adSoyad);
 	printf("TC               : ");
 	scanf(" %[^\n]s", o1.tc);
-	printf("Ad-Soyad         : ");
-	scanf(" %[^\n]s", o1.adSoyad);
 	printf("Dogum Tarihi     : ");
 	scanf(" %[^\n]s", o1.dTarihi);
 	printf("Dogum Yeri       : ");
@@ -76,6 +76,23 @@ void OgrenciSil()
 }
 void OgrenciListele()
 {
+     system("cls");
+	printf("Ogrenci listesi \n\n");
+	ogr o1;
+
+	FILE *Ptr = fopen("Ogrenciler.dat", "rb");
+	if (Ptr == NULL)
+	{
+       printf("Ogrenciler dosyasi acilmadi! \n");
+	   return;
+	}
+
+	printf("%-20s%-30s\n", "Ogrenci--ID", "Ogrenci--ADI");
+	while (fread(&o1, sizeof(ogr),1,Ptr))
+	{
+		printf("%-20d%-30s\n",o1.ogrenciID, o1.adSoyad);
+	}
+	fclose(Ptr);
 }
 void OgrenciBelgesi()
 {
