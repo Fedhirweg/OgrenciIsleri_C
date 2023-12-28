@@ -1037,10 +1037,18 @@ int main()
 
 	do
 	{
-		printf("\n\t1. KAYIT OL\n");
-		printf("\n\t2. GIRIS YAP\n");
-		printf("\n\t0. CIKIS\n");
-		printf("\n\tSeciminiz: ");
+        printf("*********************************************\n");
+        printf("*                                           *\n");
+        printf("*                                           *\n");
+        printf("*         OGRENCI ISLERI OTOMASYONU         *\n");
+        printf("*                                           *\n");
+        printf("*                                           *\n");
+        printf("*              \t1. KAYIT OL                 *\n");
+		printf("*              \t2. GIRIS YAP                *\n");
+		printf("*              \t0. CIKIS                    *\n");
+        printf("*                                           *\n");
+        printf("*********************************************\n");
+		printf("\n\tSeciminiz:    ");
 		scanf("%d", &secim);
 
 		switch (secim)
@@ -1055,8 +1063,13 @@ int main()
 			{
 				system("cls");
 				printf("Giris basarili!\n");
-				printf("\nHosgeldin, %s!", kullanicilar[userindex].kullaniciAdi);
-				menuEkrani();
+                printf("                                     \n");
+                printf("        ******************************************\n");
+                printf("        *                                        *\n");
+                printf("        *      Hosgeldin, %-20.20s   *\n", kullanicilar[userindex].kullaniciAdi);
+                printf("        *                                        *\n");
+                printf("        ******************************************\n");
+                menuEkrani();
 			}
 			else
 			{
