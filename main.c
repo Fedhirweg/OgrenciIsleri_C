@@ -32,7 +32,7 @@ typedef struct Ders // Ders yapısı tanımlanmaktadır.
 	int bolumNO;
 	int kredi;
 	char dersAd[30];
-	int ogrGorevlisiID;
+	int ogrGorNO;
 
 } ders;
 
@@ -42,7 +42,7 @@ typedef struct Notlar // Notlar yapısı tanımlanmaktadır.
 	int dersID;
 	int bolumNO;
 
-	int ogrGorevlisiID;
+	int ogrGorNO;
 	int ogrenciNO;
 	float puan;
 } notlar;
@@ -795,7 +795,7 @@ void dersEkle() // Sisteme ders ekleme fonksiyonu
 	ogrGorListele();
 
 	printf("Ogretim gorevlisi numarasi : ");
-	scanf(" %d", &d1.ogrGorevlisiID);
+	scanf(" %d", &d1.ogrGorNO);
 
 	FILE *numPtr = fopen("./data/dersNumaralari.dat", "a+b"); // Dersler ekleme ve okuma modunda açılmaktadır.
 	int numara = 0;
@@ -824,7 +824,7 @@ void dersListele() // Öğrencinin kayıtlı olduğu derslerin listelendiği fon
 	printf("%-20s%-20s%-30s%-20s\n", "BOLUM-NO", "DERS-NO", "DERS-ADI", "Ogr.NO");
 	while (fread(&d1, sizeof(ders), 1, ptr)) // Girilen öğreci numarası, sistemde kayıtlı bir öğrenci numarası olana kadar döngü devam etmektedir.
 	{
-		printf("%-20d%-20d%-30s%-20d\n", d1.bolumNO, d1.dersID, d1.dersAd, d1.ogrGorevlisiID);
+		printf("%-20d%-20d%-30s%-20d\n", d1.bolumNO, d1.dersID, d1.dersAd, d1.ogrGorNO);
 	}
 	fclose(ptr);
 }
@@ -883,7 +883,7 @@ void notEkle()
 
 	ogrGorListele();
 	printf("Ogretim gorevlisi numarasi : ");
-	scanf(" %d", &n1.ogrGorevlisiID);
+	scanf(" %d", &n1.ogrGorNO);
 
 	printf("Puani : ");
 	scanf(" %f", &n1.puan);
