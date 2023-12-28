@@ -47,8 +47,6 @@ typedef struct Notlar // Notlar yapısı tanımlanmaktadır.
 	float puan;
 } notlar;
 
-void bolumListele();
-
 int kullaniciAdiVarMi(Kullanici *kullanicilar, int kullaniciSayisi, const char *kullaniciAdi)
 {
 	int i;
@@ -167,7 +165,89 @@ void dataKlasoru() // Data klasörü oluşturma fonksiyonu.
 	}
 }
 
-void ogrenciEkle() // Sisteme öğrenci ekleme fonksiyonu.
+void bolumEkle()
+{
+	system("cls");
+	printf("Bolum ekleme islemi... \n\n");
+	bolum b1;
+	printf("Bolum Adi : ");
+	scanf(" %[^\n]s", b1.bolumAd);
+
+	FILE *numPtr = fopen("./data/bolumNumaralari.dat", "a+b"); // Bolüm NO tutmak için oluşturulan dosya
+	int numara = 0;
+	while (fread(&numara, sizeof(int), 1, numPtr))
+	{
+	}
+	numara += 1;
+	b1.bolumNO = numara;
+	fwrite(&numara, sizeof(int), 1, numPtr);
+	fclose(numPtr);
+
+	FILE *ptr = fopen("./data/bolumler.dat", "a+b");
+	fwrite(&b1, sizeof(bolum), 1, ptr);
+	fclose(ptr);
+
+	printf("%d numarali bolum kaydi tamam \n", numara);
+}
+
+void bolumListele()
+{
+	system("cls");
+	printf("Bolumler listesi \n\n");
+	bolum b1;
+
+	FILE *Ptr = fopen("./data/bolumler.dat", "rb");
+	if (Ptr == NULL)
+	{
+		printf("Bolum dosyasi acilamadi! \n");
+		return;
+	}
+
+	printf("%-20s%-30s\n", "BOLUM-NO", "BOLUM-ADI");
+	while (fread(&b1, sizeof(bolum), 1, Ptr))
+	{
+		printf("%-20d%-30s\n", b1.bolumNO, b1.bolumAd);
+	}
+	fclose(Ptr);
+}
+
+int bolumMenu()
+{
+	int secim;
+	printf("\n\tBolum islemleri...\n\n");
+	printf("\n\t1- Bolum Ekle \n");
+	printf("\n\t2- Bolum listele \n");
+	printf("\n\t0- Cikis \n");
+	printf("\n\t   Seciminiz :  ");
+	scanf("%d", &secim);
+	system("cls");
+	return secim;
+}
+
+void bolumIslemleri()
+{
+	int secim = bolumMenu();
+	while (secim != 0)
+	{
+		switch (secim)
+		{
+		case 1:
+			bolumEkle();
+			break;
+		case 2:
+			bolumListele();
+			break;
+		case 0:
+			break;
+		default:
+			printf("Hatali secim yaptiniz ! \n");
+		}
+		secim = bolumMenu();
+	}
+	printf("bolum islemlerinden cikis yaptiniz ... \n");
+}
+
+void ogrEkle() // Sisteme öğrenci ekleme fonksiyonu.
 {
 	system("cls");
 	printf("Ogrenci ekleme islemi... \n\n");
@@ -215,7 +295,7 @@ void ogrenciEkle() // Sisteme öğrenci ekleme fonksiyonu.
 	printf("%d numarali ogrenci kaydi tamam \n", k.numara);
 }
 
-void ogrenciSil()
+void ogrSil()
 {
 	system("cls");
 	printf("Ogrenci silme islemi... \n\n");
@@ -250,7 +330,7 @@ void ogrenciSil()
 	fclose(ptr);
 }
 
-void ogrenciAra()
+void ogrBul()
 {
 	system("cls");
 	printf("Ogrenci arama islemi... \n\n");
@@ -287,7 +367,7 @@ void ogrenciAra()
 	fclose(ptr);
 }
 
-void ogrenciListele()
+void ogrListele()
 {
 	system("cls");
 	printf("Ogrenci listele islemi... \n\n");
@@ -313,7 +393,7 @@ void ogrenciListele()
 	printf("\nToplam ogrenci sayisi : %d \n", sayac);
 }
 
-void ogrenciBelgesi()
+void ogrBelgesi()
 {
 	system("cls");
 	printf("Ogrenci belgesi islemleri... \n\n");
@@ -375,7 +455,7 @@ void ogrenciBelgesi()
 	}
 	fclose(ptr);
 }
-void ogrenciTranskript()
+void ogrTranskript()
 {
 	system("cls");
 	printf("Ogrenci transkript islemleri... \n\n");
@@ -423,7 +503,7 @@ void ogrenciTranskript()
 		fclose(ptr);
 	}
 }
-void ogrenciMezuniyet()
+void ogrMezun()
 {
 	system("cls");
 	printf("Ogrenci mezuniyet islemi... \n\n");
@@ -457,7 +537,7 @@ void ogrenciMezuniyet()
 	fclose(ptr);
 }
 
-int ogrenciMenu()
+int ogrMenu()
 {
 	int secim;
 	printf("\n\tOgrenci islemleri... \n\n");
@@ -469,50 +549,50 @@ int ogrenciMenu()
 	printf("\n\t6- Ogrenci Transkript  \n");
 	printf("\n\t7- Ogrenci Mezuniyet  \n");
 	printf("\n\t0- Cikis \n");
-	printf("\n\t- Seciminiz   :  ");
+	printf("\n\t   Seciminiz   :  ");
 	scanf("%d", &secim);
 	system("cls");
 	return secim;
 }
 
-void ogrenciIslemleri()
+void ogrIslemleri()
 {
-	int secim = ogrenciMenu();
+	int secim = ogrMenu();
 	while (secim != 0)
 	{
 		switch (secim)
 		{
 		case 1:
-			ogrenciEkle();
+			ogrEkle();
 			break;
 		case 2:
-			ogrenciSil();
+			ogrSil();
 			break;
 		case 3:
-			ogrenciAra();
+			ogrBul();
 			break;
 		case 4:
-			ogrenciListele();
+			ogrListele();
 			break;
 		case 5:
-			ogrenciBelgesi();
+			ogrBelgesi();
 			break;
 		case 6:
-			ogrenciTranskript();
+			ogrTranskript();
 			break;
 		case 7:
-			ogrenciMezuniyet();
+			ogrMezun();
 			break;
 		case 0:
 			break;
 		default:
 			printf("Hatali secim yaptiniz ! \n");
 		}
-		secim = ogrenciMenu();
+		secim = ogrMenu();
 	}
 	printf("Ogrenci islemlerinden cikis yaptiniz ... \n");
 }
-void ogretimGorevlisiEkle()
+void ogrGorEkle()
 {
 	system("cls");
 	printf("Ogretim gorevlisi ekleme islemi... \n\n");
@@ -529,22 +609,22 @@ void ogretimGorevlisiEkle()
 	k.numara = numara;
 	fwrite(&numara, sizeof(int), 1, numPtr);
 	fclose(numPtr);
-	printf("TC             : ");
-	scanf(" %[^\n]s", k.tc);
 	printf("Ad-Soyad       : ");
 	scanf(" %[^\n]s", k.adSoyad);
+	printf("TC             : ");
+	scanf(" %[^\n]s", k.tc);
 	printf("Dogum Tarih    : ");
 	scanf(" %[^\n]s", k.dTarih);
 	printf("Dogum Yeri     : ");
 	scanf(" %[^\n]s", k.dYeri);
 	printf("Cinsiyet       : ");
 	scanf(" %[^\n]s", &k.cinsiyet);
-	printf("Adres          : ");
-	scanf(" %[^\n]s", k.adres);
 	printf("Telefon        : ");
 	scanf(" %[^\n]s", k.tel);
 	printf("E-Posta        : ");
 	scanf(" %[^\n]s", k.ePosta);
+	printf("Adres          : ");
+	scanf(" %[^\n]s", k.adres);
 	fclose(numPtr);
 
 	bolumListele();
@@ -560,7 +640,7 @@ void ogretimGorevlisiEkle()
 	printf("%d numarali ogretim gorevlisi kaydi tamam \n", k.numara);
 }
 
-void ogretimGorevlisiSil()
+void ogrGorSil()
 {
 	system("cls");
 	printf("Ogretim gorevlisi silme islemi... \n\n");
@@ -594,7 +674,7 @@ void ogretimGorevlisiSil()
 	fclose(ptr);
 }
 
-void ogretimGorevlisiAra()
+void ogrGorBul()
 {
 	system("cls");
 	printf("Ogretim gorevlisi arama islemi... \n\n");
@@ -633,7 +713,7 @@ void ogretimGorevlisiAra()
 	fclose(ptr);
 }
 
-void ogretimGorevlisiListele()
+void ogrGorListele()
 {
 	system("cls");
 	printf("Ogretim gorevlisi listele islemi... \n\n");
@@ -644,7 +724,7 @@ void ogretimGorevlisiListele()
 
 	printf("%-20s%-20s%-30s%-20s\n", "NUMARA", "TC", "AD-SOYAD", "BOLUMU");
 	while (fread(&k, sizeof(ogr), 1, ptr) == 1)
-	{ // Bilgiler yazdırılmıştır.
+	{
 		printf("%-20d%-20s%-30s%-20d\n", k.numara, k.tc, k.adSoyad, k.bolumNO);
 		sayac++;
 	}
@@ -652,7 +732,7 @@ void ogretimGorevlisiListele()
 	printf("\nToplam ogretim gorevlisi sayisi : %d \n", sayac);
 }
 
-int ogretimGorevlisiMenu()
+int ogrGorMenu()
 {
 	int secim;
 	printf("\n\tOgretim gorevlisi islemleri... \n\n");
@@ -662,37 +742,37 @@ int ogretimGorevlisiMenu()
 	printf("\n\t4- Ogretim Gorevlisi Listele  \n");
 
 	printf("\n\t0- Cikis \n");
-	printf("\n\t- Seciminiz   :  ");
+	printf("\n\t   Seciminiz   :  ");
 	scanf("%d", &secim);
 	system("cls");
 	return secim;
 }
 
-void ogretimGorevlisiIslemleri()
+void ogrGorIslemleri()
 {
-	int secim = ogretimGorevlisiMenu();
+	int secim = ogrGorMenu();
 	while (secim != 0)
 	{
 		switch (secim)
 		{
 		case 1:
-			ogretimGorevlisiEkle();
+			ogrGorEkle();
 			break;
 		case 2:
-			ogretimGorevlisiSil();
+			ogrGorSil();
 			break;
 		case 3:
-			ogretimGorevlisiAra();
+			ogrGorBul();
 			break;
 		case 4:
-			ogretimGorevlisiListele();
+			ogrGorListele();
 			break;
 		case 0:
 			break;
 		default:
 			printf("Hatali secim yaptiniz ! \n");
 		}
-		secim = ogretimGorevlisiMenu();
+		secim = ogrGorMenu();
 	}
 	printf("Ogretim gorevlisi islemlerinden cikis yaptiniz ... \n");
 }
@@ -712,7 +792,7 @@ void dersEkle() // Sisteme ders ekleme fonksiyonu
 	printf("Bolum Numarasi : ");
 	scanf(" %d", &d1.bolumNO);
 
-	ogretimGorevlisiListele();
+	ogrGorListele();
 
 	printf("Ogretim gorevlisi numarasi : ");
 	scanf(" %d", &d1.ogrGorevlisiID);
@@ -756,7 +836,7 @@ int dersMenu()
 	printf("\n\t1- Ders Ekle  \n");
 	printf("\n\t2- Ders Listele \n");
 	printf("\n\t0- Cikis \n");
-	printf("\n\t1- Seciminiz   :  ");
+	printf("\n\t   Seciminiz   :  ");
 	scanf("%d", &secim);
 	system("cls");
 	return secim;
@@ -785,88 +865,6 @@ void dersIslemleri()
 	printf("Ders islemlerinden cikis yaptiniz ... \n");
 }
 
-void bolumEkle()
-{
-	system("cls");
-	printf("Bolum ekleme islemi... \n\n");
-	bolum b1;
-	printf("Bolum Adi : ");
-	scanf(" %[^\n]s", b1.bolumAd);
-
-	FILE *numPtr = fopen("./data/bolumNumaralari.dat", "a+b"); // Bolüm NO tutmak için oluşturulan dosya
-	int numara = 0;
-	while (fread(&numara, sizeof(int), 1, numPtr))
-	{
-	}
-	numara += 1;
-	b1.bolumNO = numara;
-	fwrite(&numara, sizeof(int), 1, numPtr);
-	fclose(numPtr);
-
-	FILE *ptr = fopen("./data/bolumler.dat", "a+b");
-	fwrite(&b1, sizeof(bolum), 1, ptr);
-	fclose(ptr);
-
-	printf("%d numarali bolum kaydi tamam \n", numara);
-}
-
-void bolumListele()
-{
-	system("cls");
-	printf("Bolumler listesi \n\n");
-	bolum b1;
-
-	FILE *Ptr = fopen("./data/bolumler.dat", "rb");
-	if (Ptr == NULL)
-	{
-		printf("Bolum dosyasi acilamadi! \n");
-		return;
-	}
-
-	printf("%-20s%-30s\n", "BOLUM-NO", "BOLUM-ADI");
-	while (fread(&b1, sizeof(bolum), 1, Ptr))
-	{
-		printf("%-20d%-30s\n", b1.bolumNO, b1.bolumAd);
-	}
-	fclose(Ptr);
-}
-
-int bolumMenu()
-{
-	int secim;
-	printf("\n\tBolum islemleri...\n\n");
-	printf("\n\t1- Bolum Ekle \n");
-	printf("\n\t2- Bolum listele \n");
-	printf("\n\t0- Cikis \n");
-	printf("\n\t1- Seciminiz :  ");
-	scanf("%d", &secim);
-	system("cls");
-	return secim;
-}
-
-void bolumIslemleri()
-{
-	int secim = bolumMenu();
-	while (secim != 0)
-	{
-		switch (secim)
-		{
-		case 1:
-			bolumEkle();
-			break;
-		case 2:
-			bolumListele();
-			break;
-		case 0:
-			break;
-		default:
-			printf("Hatali secim yaptiniz ! \n");
-		}
-		secim = bolumMenu();
-	}
-	printf("bolum islemlerinden cikis yaptiniz ... \n");
-}
-
 void notEkle()
 {
 	system("cls");
@@ -883,7 +881,7 @@ void notEkle()
 	printf("Bolum Numarasi : ");
 	scanf(" %d", &n1.bolumNO);
 
-	ogretimGorevlisiListele();
+	ogrGorListele();
 	printf("Ogretim gorevlisi numarasi : ");
 	scanf(" %d", &n1.ogrGorevlisiID);
 
@@ -929,7 +927,7 @@ int notMenu()
 	printf("\n\t1- Not Ekle  \n");
 	printf("\n\t2- Not Listele \n");
 	printf("\n\t0- Cikis \n");
-	printf("\n\t1- Seciminiz   :  ");
+	printf("\n\t   Seciminiz   :  ");
 	scanf("%d", &secim);
 	system("cls");
 	return secim;
@@ -961,7 +959,6 @@ void notIslemleri()
 int menu()
 {
 	int secim;
-	// system("cls");
 	printf("\n\tOGRENCI ISLERI OTOMASYONU\n\n");
 	printf("\n\t1- OGRENCI ISLEMLERI \n");
 	printf("\n\t2- OGRETIM GOREVLISI ISLEMLERI \n");
@@ -980,15 +977,15 @@ int menu()
 void menuEkrani()
 {
 	int secim = menu();
-	while (secim != 9)
+	while (secim != 6)
 	{
 		switch (secim)
 		{
 		case 1:
-			ogrenciIslemleri();
+			ogrIslemleri();
 			break;
 		case 2:
-			ogretimGorevlisiIslemleri();
+			ogrGorIslemleri();
 			break;
 		case 3:
 			dersIslemleri();
