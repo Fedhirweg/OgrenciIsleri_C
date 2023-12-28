@@ -19,14 +19,14 @@ typedef struct Bolum
 	char bolumAd[30];
 } bolum;
 
-typedef struct Kisi
+typedef struct Kisi   //Öğrenci yapısı tanımlanmaktadır.
 {
 	int numara;
-	char tc[20], adSoyad[20], dTarih[20], dYeri[20], cinsiyet, adres[30], tel[20], ePosta[30];
-	int askerlikDurumu, bolumID, durum; // durum = 0 ise silinmis, 1 = aktif, 2 = mezun
+	char tc[20], adSoyad[20], dTarih[20], dYeri[20], cinsiyet, adres[30], tel[20], ePosta[30]; 
+	int askerlikDurumu, bolumID, durum;   //Durum 1 ise Aktif öğrenci, 0 ise silinmiş, Mezun ise 2 ile gösterilmiştir.
 } ogr;
 
-typedef struct Ders
+typedef struct Ders  //Ders yapısı tanımlanmaktadır.
 {
 	int dersID;
 	int bolumID;
@@ -36,7 +36,7 @@ typedef struct Ders
 
 } ders;
 
-typedef struct Notlar
+typedef struct Notlar  //Notlar yapısı tanımlanmaktadır.
 {
 	int notID;
 	int dersID;
@@ -49,28 +49,28 @@ typedef struct Notlar
 
 void bolumListele();
 
-void dataKlasoru()
+void dataKlasoru()  //Data klasörü oluşturma fonksiyonu.
 {
 	const char *folderPath = "data";
 
 	if (CreateDirectory(folderPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
 	{
-		// printf("Folder created successfully or already exists: %s\n", folderPath);
+		
 	}
 	else
 	{
-		printf("Dizin hatası: %s\n", folderPath);
+		printf("Dizin hatasÄ±: %s\n", folderPath);
 	}
 }
 
-void ogrenciEkle()
+void ogrenciEkle()  //Sisteme öğrenci ekleme fonksiyonu.
 {
 	system("cls");
 	printf("Ogrenci ekleme islemi... \n\n");
 
 	ogr o1;
 
-	FILE *numPtr = fopen("./data/ogrenciNumaralari.dat", "a+b");
+	FILE *numPtr = fopen("./data/ogrenciNumaralari.dat", "a+b");  //Arka planda numara üretir 
 	int numara = 0;
 	while (fread(&numara, sizeof(int), 1, numPtr))
 	{
@@ -80,7 +80,7 @@ void ogrenciEkle()
 	o1.numara = numara;
 	fwrite(&numara, sizeof(int), 1, numPtr);
 	fclose(numPtr);
-	printf("TC             : ");
+	printf("TC             : ");              //Öğrencinin bilgileri alındı.
 	scanf(" %[^\n]s", o1.tc);
 	printf("Ad-Soyad       : ");
 	scanf(" %[^\n]s", o1.adSoyad);
@@ -100,7 +100,7 @@ void ogrenciEkle()
 	{
 		printf("Askerlik Durumu\n");
 		printf("[Yapmadi (0), Yapti (1), Muaf(2)]  : ");
-		scanf("%d", &o1.askerlikDurumu);
+		scanf("%d", &o1.askerlikDurumu);                  //Kişi eğer kadınsa askerlik sorulmadı
 	}
 	o1.askerlikDurumu = 3;
 	fclose(numPtr);
@@ -112,7 +112,7 @@ void ogrenciEkle()
 	o1.durum = 1;
 
 	FILE *ptr = fopen("./data/ogrenciler.dat", "a+b");
-	fwrite(&o1, sizeof(ogr), 1, ptr);
+	fwrite(&o1, sizeof(ogr), 1, ptr);                   //Oluşturulan numarayı kaydettik ve kapattık.
 	fclose(ptr);
 
 	printf("%d numarali ogrenci kaydi tamam \n", o1.numara);
@@ -126,7 +126,7 @@ void ogrenciSil()
 	ogr o1;
 	int numara, sayac = 0, sonuc = 0;
 
-	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b");
+	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b");  //Okuma ve yazma formatın pointer oluşturduk.
 
 	printf("Numara : ");
 	scanf("%d", &numara);
@@ -145,7 +145,7 @@ void ogrenciSil()
 	{
 		rewind(ptr);
 		fseek(ptr, (sayac) * sizeof(ogr), 0);
-		o1.durum = 0;
+		o1.durum = 0;                                    //Durum 0 ise öğrencinin kaydı silinmiştir ve ya dondurulmuştur.
 		fwrite(&o1, sizeof(ogr), 1, ptr);
 		printf("%d numarali ogrenci kaydi silindi \n", numara);
 	}
@@ -163,7 +163,7 @@ void ogrenciAra()
 
 	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b");
 
-	printf("Numara : ");
+	printf("Numara : ");                             //Aranıcak olan öğrencinin numarasını sorgulama.
 	scanf("%d", &numara);
 	while (fread(&o1, sizeof(ogr), 1, ptr) == 1)
 	{
@@ -179,7 +179,7 @@ void ogrenciAra()
 	else
 	{
 
-		printf("%d numarali ogrenci bilgileri \n", numara);
+		printf("%d numarali ogrenci bilgileri \n", numara);   //Öğrencinin kayıtlı bilgileri burada gösterilir.
 		printf("TC          : %s \n", o1.tc);
 		printf("Ad-Soyad    : %s \n", o1.adSoyad);
 		printf("Bolumu      : %d \n", o1.bolumID);
@@ -203,12 +203,12 @@ void ogrenciListele()
 	printf("Bolum No : ");
 	scanf("%d", &bolumNo);
 
-	printf("%-20s%-20s%-30s\n", "NUMARA", "TC", "AD-SOYAD");
+	printf("%-20s%-20s%-30s\n", "NUMARA", "TC", "AD-SOYAD");   //Öğrencinin bilgileri alındı.
 	while (fread(&o1, sizeof(ogr), 1, ptr) == 1)
 	{
 		if (bolumNo == o1.bolumID && o1.durum == 1)
 		{
-			printf("%-20d%-20s%-30s \n", o1.numara, o1.tc, o1.adSoyad);
+			printf("%-20d%-20s%-30s \n", o1.numara, o1.tc, o1.adSoyad);   //Hangi bölümün öğrencisi ise onu listeliyoruz.
 			sayac++;
 		}
 	}
@@ -241,7 +241,7 @@ void ogrenciBelgesi()
 		printf("%d numarali ogrenci bulunamadi \n", numara);
 	else
 	{
-		if (o1.durum == 0)
+		if (o1.durum == 0)                                 //Öğrencinin aktif mi yoksa mezun bir öğrenci mi olduğunu gösterilmiştir.
 		{
 			printf("%d numarali ogrencin kaydi SILINMISTIR . bilgileri asagidadir. \n", numara);
 			printf("TC          : %s \n", o1.tc);
@@ -253,7 +253,7 @@ void ogrenciBelgesi()
 			printf("Telefon     : %s \n", o1.tel);
 		}
 
-		else if (o1.durum == 1)
+		else if (o1.durum == 1)                     //Durum Eğer 1 ise aktif kayıtlı öğrencidir.
 		{
 			printf("%d numarali ogrenci AKTIF kayitli ogrencidir . bilgileri asagidadir. \n", numara);
 			printf("TC          : %s \n", o1.tc);
@@ -336,13 +336,13 @@ void ogrenciMezuniyet()
 
 	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b");
 
-	printf("Numara : ");
+	printf("Numara : ");                             //Yine numara sorgulama yapolmıştır.
 	scanf("%d", &numara);
 	while (fread(&o1, sizeof(ogr), 1, ptr) == 1)
 	{
 		if (numara == o1.numara)
 		{
-			sonuc = 1;
+			sonuc = 1;                               //Öğrencinin durumu 0 ise silinmiştir 1 ise aktiftir.
 			break;
 		}
 		sayac++;
@@ -351,7 +351,7 @@ void ogrenciMezuniyet()
 		printf("%d numarali ogrenci bulunamadi \n", numara);
 	else
 	{
-		rewind(ptr);
+		rewind(ptr);                                 //gösterilen akışda ki aktif dosya konumunu en başa alır.
 		fseek(ptr, (sayac) * sizeof(ogr), 0);
 		o1.durum = 2;
 		fwrite(&o1, sizeof(ogr), 1, ptr);
@@ -554,7 +554,7 @@ void ogretimGorevlisiListele()
 
 	printf("%-20s%-20s%-30s%-20s\n", "NUMARA", "TC", "AD-SOYAD", "BOLUMU");
 	while (fread(&o1, sizeof(ogr), 1, ptr) == 1)
-	{
+	{                                                                                 //Bilgiler yazdırılmıştır.
 		printf("%-20d%-20s%-30s%-20d\n", o1.numara, o1.tc, o1.adSoyad, o1.bolumID);
 		sayac++;
 	}
@@ -607,7 +607,7 @@ void ogretimGorevlisiIslemleri()
 	printf("Ogretim gorevlisi islemlerinden cikis yaptiniz ... \n");
 }
 
-void dersEkle()
+void dersEkle()         //Sisteme ders ekleme fonksiyonu
 {
 	system("cls");
 	printf("Ders ekleme islemi... \n\n");
@@ -627,7 +627,7 @@ void dersEkle()
 	printf("Ogretim gorevlisi numarasi : ");
 	scanf(" %d", &d1.ogrGorevlisiID);
 
-	FILE *numPtr = fopen("./data/dersNumaralari.dat", "a+b");
+	FILE *numPtr = fopen("./data/dersNumaralari.dat", "a+b");    //Dersler ekleme ve okuma modunda açılmaktadır.
 	int numara = 0;
 	while (fread(&numara, sizeof(int), 1, numPtr))
 	{
@@ -638,12 +638,12 @@ void dersEkle()
 	fclose(numPtr);
 
 	FILE *ptr = fopen("./data/dersler.dat", "a+b");
-	fwrite(&d1, sizeof(ders), 1, ptr);
+	fwrite(&d1, sizeof(ders), 1, ptr);                           //Eklenen ders bilgileri dosyaya yazılmaktadır.
 	fclose(ptr);
 	printf("%d numarali ders kaydi tamam \n", numara);
 }
 
-void dersListele()
+void dersListele()        //Öğrencinin kayıtlı olduğu derslerin listelendiği fonksiyon.
 {
 	system("cls");
 	printf("Ders listesi ... \n\n");
@@ -652,7 +652,7 @@ void dersListele()
 
 	FILE *ptr = fopen("./data/dersler.dat", "r+b");
 	printf("%-20s%-20s%-30s%-20s\n", "BOLUM-ID", "DERS-ID", "DERS-ADI", "Ogr.NO");
-	while (fread(&d1, sizeof(ders), 1, ptr))
+	while (fread(&d1, sizeof(ders), 1, ptr))                    //Girilen öğreci numarası, sistemde kayıtlı bir öğrenci numarası olana kadar döngü devam etmektedir.
 	{
 		printf("%-20d%-20d%-30s%-20d\n", d1.bolumID, d1.dersID, d1.dersAd, d1.ogrGorevlisiID);
 	}
@@ -674,7 +674,7 @@ int dersMenu()
 
 void dersIslemleri()
 {
-	int secim = dersMenu();
+	int secim = dersMenu();    //Yukarıda ki ders menüsü islemi çağırılmıştır.
 	while (secim != 0)
 	{
 		switch (secim)
@@ -703,7 +703,7 @@ void bolumEkle()
 	printf("Bolum Adi : ");
 	scanf(" %[^\n]s", b1.bolumAd);
 
-	FILE *numPtr = fopen("./data/bolumNumaralari.dat", "a+b");
+	FILE *numPtr = fopen("./data/bolumNumaralari.dat", "a+b");  //Bolüm ID tutmak için oluşturulan dosya
 	int numara = 0;
 	while (fread(&numara, sizeof(int), 1, numPtr))
 	{
