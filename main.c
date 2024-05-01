@@ -23,7 +23,8 @@ typedef struct Kisi // Öğrenci ve öğretim görevlisi yapısı tanımlanmakta
 {
 	int numara;
 	char adSoyad[20], tc[20], dTarih[20], dYeri[20], cinsiyet, tel[20], ePosta[30], adres[30];
-	int bolumNO, durum; // Durum 1 ise Aktif öğrenci, 0 ise silinmiş, Mezun ise 2 ile gösterilmiştir.
+	int bolumNO;
+	int durum; // 1 ise aktif, 0 ise silinmiş, 2 ise mezun
 } ogr;
 
 typedef struct Ders // Ders yapısı tanımlanmaktadır.
@@ -47,11 +48,9 @@ typedef struct Notlar // Notlar yapısı tanımlanmaktadır.
 	float puan;
 } notlar;
 
-int kullaniciAdiVarMi(Kullanici *kullanicilar, int kullaniciSayisi, const char *kullaniciAdi)
+int kullaniciAdiVarMi(const Kullanici *kullanicilar, const int kullaniciSayisi, const char *kullaniciAdi)
 {
-	int i;
-
-	for (i = 0; i < kullaniciSayisi; i++)
+	for (int i = 0; i < kullaniciSayisi; i++)
 	{
 		if (strcmp(kullanicilar[i].kullaniciAdi, kullaniciAdi) == 0)
 		{
@@ -88,7 +87,7 @@ void kullaniciKayit(Kullanici *kullanicilar, int *kullaniciSayisi)
 	kullanicilar[*kullaniciSayisi] = yeniKullanici;
 	(*kullaniciSayisi)++;
 
-	// Kullanici bilgilerini binary dosyalara sona ekleme
+	// Kullaniciyi dosyaya yaz
 	FILE *kullaniciDosyasi = fopen("./data/kullanici.dat", "ab");
 	FILE *sifreDosyasi = fopen("./data/sifre.dat", "ab");
 
@@ -109,11 +108,10 @@ void kullaniciKayit(Kullanici *kullanicilar, int *kullaniciSayisi)
 	}
 }
 
-int kullaniciGiris(Kullanici *kullanicilar, int kullaniciSayisi)
+int kullaniciGiris(const Kullanici *kullanicilar, int kullaniciSayisi)
 {
 	char kullaniciAdi[KULLANICI_ADI_UZUNLUK];
 	char sifre[SIFRE_UZUNLUK];
-	int i;
 	system("cls");
 	printf("\n\tGIRIS YAPMA ISLEMI ...\n\n\n");
 
@@ -123,7 +121,7 @@ int kullaniciGiris(Kullanici *kullanicilar, int kullaniciSayisi)
 	printf("\tSifre: ");
 	scanf("%s", sifre);
 
-	for (i = 0; i < kullaniciSayisi; i++)
+	for (int i = 0; i < kullaniciSayisi; i++)
 	{
 		if (strcmp(kullanicilar[i].kullaniciAdi, kullaniciAdi) == 0 && strcmp(kullanicilar[i].sifre, sifre) == 0)
 		{
@@ -236,8 +234,6 @@ void bolumIslemleri()
 			break;
 		case 2:
 			bolumListele();
-			break;
-		case 0:
 			break;
 		default:
 			printf("Hatali secim yaptiniz ! \n");
@@ -492,15 +488,15 @@ void ogrTranskript()
 
 		notlar n1;
 
-		FILE *ptr = fopen("./data/notlar.dat", "r+b");
+		FILE *file = fopen("./data/notlar.dat", "r+b");
 		printf("%-20s%-20s%-20s\n", "DERS-NO", "OGRENCI-NO", "PUAN");
-		while (fread(&n1, sizeof(notlar), 1, ptr))
+		while (fread(&n1, sizeof(notlar), 1, file))
 		{
 
 			if (numara == n1.ogrenciNO)
 				printf("%-20d%-20d%.2f\n", n1.dersID, n1.ogrenciNO, n1.puan);
 		}
-		fclose(ptr);
+		fclose(file);
 	}
 }
 void ogrMezun()
@@ -582,8 +578,6 @@ void ogrIslemleri()
 			break;
 		case 7:
 			ogrMezun();
-			break;
-		case 0:
 			break;
 		default:
 			printf("Hatali secim yaptiniz ! \n");
@@ -719,16 +713,27 @@ void ogrGorListele()
 	printf("Ogretim gorevlisi listele islemi... \n\n");
 
 	ogr k;
+	bolum b;
 	FILE *ptr = fopen("./data/ogretimGorevlileri.dat", "r+b");
-	int bolumNo, sayac = 0;
+	FILE *bolumPtr = fopen("./data/bolumler.dat", "r+b");
+	int sayac = 0;
 
-	printf("%-20s%-20s%-30s%-20s\n", "NUMARA", "TC", "AD-SOYAD", "BOLUMU");
+	printf("%-20s%-20s%-30s%-30s\n", "NUMARA", "TC", "AD-SOYAD", "BOLUM ADI");
 	while (fread(&k, sizeof(ogr), 1, ptr) == 1)
 	{
-		printf("%-20d%-20s%-30s%-20d\n", k.numara, k.tc, k.adSoyad, k.bolumNO);
+		rewind(bolumPtr); // dosya pointerını başa alır.
+		while (fread(&b, sizeof(bolum), 1, bolumPtr) == 1) // Bolum bilgileri alınmaktadır.
+		{
+			if (b.bolumNO == k.bolumNO) // Eğer bolumNO eşit ise bolumAd bilgileri alınmaktadır.
+			{
+				printf("%-20d%-20s%-30s%-30s\n", k.numara, k.tc, k.adSoyad, b.bolumAd);
+				break; // Eğer eşit ise döngüden çıkılmaktadır.
+			}
+		}
 		sayac++;
 	}
 	fclose(ptr);
+	fclose(bolumPtr);
 	printf("\nToplam ogretim gorevlisi sayisi : %d \n", sayac);
 }
 
@@ -766,8 +771,6 @@ void ogrGorIslemleri()
 			break;
 		case 4:
 			ogrGorListele();
-			break;
-		case 0:
 			break;
 		default:
 			printf("Hatali secim yaptiniz ! \n");
@@ -854,8 +857,6 @@ void dersIslemleri()
 			break;
 		case 2:
 			dersListele();
-			break;
-		case 0:
 			break;
 		default:
 			printf("Hatali secim yaptiniz ! \n");
@@ -946,8 +947,6 @@ void notIslemleri()
 		case 2:
 			notListele();
 			break;
-		case 0:
-			break;
 		default:
 			printf("Hatali secim yaptiniz ! \n");
 		}
@@ -966,7 +965,7 @@ int menu()
 	printf("\n\t4- NOT ISLEMLERI \n");
 	printf("\n\t5- BOLUM ISLEMLERI \n");
 
-	printf("\n\t6- KULLANICI ISLEMLERI \n");
+	printf("\n\t6- OTURUMU KAPAT \n");
 	printf("\n\t0- PROGRAMI KAPAT \n");
 	printf("\n\t   Seciminiz   :  ");
 	scanf("%d", &secim);
@@ -995,8 +994,6 @@ void menuEkrani()
 			break;
 		case 5:
 			bolumIslemleri();
-			break;
-		case 6:
 			break;
 		case 0:
 			printf("Program sonlandiriliyor... \n");
