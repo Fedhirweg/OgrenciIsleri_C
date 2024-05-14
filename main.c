@@ -17,6 +17,7 @@ typedef struct Bolum
 {
 	int bolumNO;
 	char bolumAd[30];
+	int durum; // 1 ise aktif, 0 ise silinmiş
 } bolum;
 
 typedef struct Kisi // Öğrenci ve öğretim görevlisi yapısı tanımlanmaktadır.
@@ -178,6 +179,7 @@ void bolumEkle()
 	}
 	numara += 1;
 	b1.bolumNO = numara;
+	b1.durum = 1;
 	fwrite(&numara, sizeof(int), 1, numPtr);
 	fclose(numPtr);
 
@@ -204,9 +206,45 @@ void bolumListele()
 	printf("%-20s%-30s\n", "BOLUM-NO", "BOLUM-ADI");
 	while (fread(&b1, sizeof(bolum), 1, Ptr))
 	{
-		printf("%-20d%-30s\n", b1.bolumNO, b1.bolumAd);
+		if (b1.durum == 1){
+			printf("%-20d%-30s\n", b1.bolumNO, b1.bolumAd);
+		}
 	}
 	fclose(Ptr);
+}
+
+void bolumSil()
+{
+	system("cls");
+	printf("Bolum silme islemi... \n\n");
+
+	bolum b1;
+	int numara, sayac = 0, sonuc = 0;
+
+	FILE *ptr = fopen("./data/bolumler.dat", "r+b");
+
+	printf("Numara : ");
+	scanf("%d", &numara);
+	while (fread(&b1, sizeof(bolum), 1, ptr) == 1)
+	{
+		if (numara == b1.bolumNO && b1.durum == 1)
+		{
+			sonuc = 1;
+			break;
+		}
+		sayac++;
+	}
+	if (sonuc == 0)
+		printf("%d numarali bolum bulunamadi \n", numara);
+	else
+	{
+		rewind(ptr);
+		fseek(ptr, (sayac) * sizeof(bolum), 0);
+		b1.durum = 0;
+		fwrite(&b1, sizeof(bolum), 1, ptr);
+		printf("%d numarali bolum kaydi silindi \n", numara);
+	}
+	fclose(ptr);
 }
 
 int bolumMenu()
@@ -214,7 +252,8 @@ int bolumMenu()
 	int secim;
 	printf("\n\tBolum islemleri...\n\n");
 	printf("\n\t1- Bolum Ekle \n");
-	printf("\n\t2- Bolum listele \n");
+	printf("\n\t2- Bolum Listele \n");
+	printf("\n\t3- Bolum Sil \n");
 	printf("\n\t0- Cikis \n");
 	printf("\n\t   Seciminiz :  ");
 	scanf("%d", &secim);
@@ -234,6 +273,10 @@ void bolumIslemleri()
 			break;
 		case 2:
 			bolumListele();
+			break;
+		case 3:
+			bolumListele();
+			bolumSil();
 			break;
 		default:
 			printf("Hatali secim yaptiniz ! \n");
