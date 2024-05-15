@@ -35,6 +35,7 @@ typedef struct Ders // Ders yapısı tanımlanmaktadır.
 	int kredi;
 	char dersAd[30];
 	int ogrGorNO;
+	int	durum;
 
 } ders;
 
@@ -47,6 +48,7 @@ typedef struct Notlar // Notlar yapısı tanımlanmaktadır.
 	int ogrGorNO;
 	int ogrenciNO;
 	float puan;
+	int durum;
 } notlar;
 
 int kullaniciAdiVarMi(const Kullanici *kullanicilar, const int kullaniciSayisi, const char *kullaniciAdi)
@@ -850,6 +852,7 @@ void dersEkle() // Sisteme ders ekleme fonksiyonu
 	}
 	numara += 1;
 	d1.dersID = numara;
+	d1.durum = 1;
 	fwrite(&numara, sizeof(int), 1, numPtr);
 	fclose(numPtr);
 
@@ -870,7 +873,42 @@ void dersListele() // Öğrencinin kayıtlı olduğu derslerin listelendiği fon
 	printf("%-20s%-20s%-30s%-20s\n", "BOLUM-NO", "DERS-NO", "DERS-ADI", "Ogr.NO");
 	while (fread(&d1, sizeof(ders), 1, ptr)) // Girilen öğreci numarası, sistemde kayıtlı bir öğrenci numarası olana kadar döngü devam etmektedir.
 	{
-		printf("%-20d%-20d%-30s%-20d\n", d1.bolumNO, d1.dersID, d1.dersAd, d1.ogrGorNO);
+		if (d1.durum == 1)
+			printf("%-20d%-20d%-30s%-20d\n", d1.bolumNO, d1.dersID, d1.dersAd, d1.ogrGorNO);
+	}
+	fclose(ptr);
+}
+
+void dersSil()
+{
+	system("cls");
+	printf("Ders silme islemi... \n\n");
+
+	ders d1;
+	int numara, sayac = 0, sonuc = 0;
+
+	FILE *ptr = fopen("./data/dersler.dat", "r+b");
+
+	printf("Numara : ");
+	scanf("%d", &numara);
+	while (fread(&d1, sizeof(ders), 1, ptr) == 1)
+	{
+		if (numara == d1.dersID && d1.durum == 1)
+		{
+			sonuc = 1;
+			break;
+		}
+		sayac++;
+	}
+	if (sonuc == 0)
+		printf("%d numarali ders bulunamadi \n", numara);
+	else
+	{
+		rewind(ptr);
+		fseek(ptr, (sayac) * sizeof(ders), 0);
+		d1.durum = 0;
+		fwrite(&d1, sizeof(ders), 1, ptr);
+		printf("%d numarali ders kaydi silindi \n", numara);
 	}
 	fclose(ptr);
 }
@@ -881,6 +919,7 @@ int dersMenu()
 	printf("\n\tDers islemleri... \n\n");
 	printf("\n\t1- Ders Ekle  \n");
 	printf("\n\t2- Ders Listele \n");
+	printf("\n\t3- Ders Sil \n");
 	printf("\n\t0- Cikis \n");
 	printf("\n\t   Seciminiz   :  ");
 	scanf("%d", &secim);
@@ -900,6 +939,9 @@ void dersIslemleri()
 			break;
 		case 2:
 			dersListele();
+			break;
+		case 3:
+			dersSil();
 			break;
 		default:
 			printf("Hatali secim yaptiniz ! \n");
@@ -959,7 +1001,42 @@ void notListele()
 	printf("%-20s%-20s%-20s\n", "DERS-NO", "OGRENCI-NO", "PUAN");
 	while (fread(&n1, sizeof(notlar), 1, ptr))
 	{
-		printf("%-20d%-20d%.2f\n", n1.dersID, n1.ogrenciNO, n1.puan);
+		if (n1.durum == 1)
+			printf("%-20d%-20d%.2f\n", n1.dersID, n1.ogrenciNO, n1.puan);
+	}
+	fclose(ptr);
+}
+
+void notSil()
+{
+	system("cls");
+	printf("Not silme islemi... \n\n");
+
+	notlar n1;
+	int numara, sayac = 0, sonuc = 0;
+
+	FILE *ptr = fopen("./data/notlar.dat", "r+b");
+
+	printf("Numara : ");
+	scanf("%d", &numara);
+	while (fread(&n1, sizeof(notlar), 1, ptr) == 1)
+	{
+		if (numara == n1.notID)
+		{
+			sonuc = 1;
+			break;
+		}
+		sayac++;
+	}
+	if (sonuc == 0)
+		printf("%d numarali not bulunamadi \n", numara);
+	else
+	{
+		rewind(ptr);
+		fseek(ptr, (sayac) * sizeof(notlar), 0);
+		n1.durum = 0;
+		fwrite(&n1, sizeof(notlar), 1, ptr);
+		printf("%d numarali not kaydi silindi \n", numara);
 	}
 	fclose(ptr);
 }
@@ -970,6 +1047,7 @@ int notMenu()
 	printf("\n\tNot islemleri... \n\n");
 	printf("\n\t1- Not Ekle  \n");
 	printf("\n\t2- Not Listele \n");
+	printf("\n\t3- Not Sil \n");
 	printf("\n\t0- Cikis \n");
 	printf("\n\t   Seciminiz   :  ");
 	scanf("%d", &secim);
@@ -989,6 +1067,9 @@ void notIslemleri()
 			break;
 		case 2:
 			notListele();
+			break;
+		case 3:
+			notSil();
 			break;
 		default:
 			printf("Hatali secim yaptiniz ! \n");
