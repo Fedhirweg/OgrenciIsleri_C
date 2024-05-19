@@ -224,8 +224,8 @@ void bolumSil()
 	int numara, sayac = 0, sonuc = 0;
 
 	FILE *ptr = fopen("./data/bolumler.dat", "r+b");
-
-	printf("Numara : ");
+	bolumListele();
+	printf("Silinecek Bolum Numarasi : ");
 	scanf("%d", &numara);
 	while (fread(&b1, sizeof(bolum), 1, ptr) == 1)
 	{
@@ -420,7 +420,7 @@ void ogrListele()
 	int bolumNo, sayac = 0;
 	printf("Bolum No : ");
 	scanf("%d", &bolumNo);
-
+	system("cls");
 	printf("%-20s%-20s%-30s\n", "NUMARA", "TC", "AD-SOYAD"); // Öğrencinin bilgileri alındı.
 	while (fread(&k, sizeof(ogr), 1, ptr) == 1)
 	{
@@ -431,7 +431,7 @@ void ogrListele()
 		}
 	}
 	fclose(ptr);
-	printf("\nToplam ogrenci sayisi : %d \n", sayac);
+	printf("\nBolumdeki toplam ogrenci sayisi : %d \n", sayac);
 }
 
 void ogrBelgesi()
@@ -862,21 +862,44 @@ void dersEkle() // Sisteme ders ekleme fonksiyonu
 	printf("%d numarali ders kaydi tamam \n", numara);
 }
 
-void dersListele() // Öğrencinin kayıtlı olduğu derslerin listelendiği fonksiyon.
+void dersListele()
 {
 	system("cls");
 	printf("Ders listesi ... \n\n");
 
 	ders d1;
+	ogr ogrGor;
 
-	FILE *ptr = fopen("./data/dersler.dat", "r+b");
-	printf("%-20s%-20s%-30s%-20s\n", "BOLUM-NO", "DERS-NO", "DERS-ADI", "Ogr.NO");
-	while (fread(&d1, sizeof(ders), 1, ptr)) // Girilen öğreci numarası, sistemde kayıtlı bir öğrenci numarası olana kadar döngü devam etmektedir.
+	FILE *dersPtr = fopen("./data/dersler.dat", "r+b");
+	FILE *ogrGorPtr = fopen("./data/ogretimGorevlileri.dat", "r+b");
+
+	printf("%-20s%-20s%-30s%-20s%-30s\n", "BOLUM-NO", "DERS-NO", "DERS-ADI", "Ogr.NO", "Ogr.ADI");
+
+	while (fread(&d1, sizeof(ders), 1, dersPtr))
 	{
-		if (d1.durum == 1)
-			printf("%-20d%-20d%-30s%-20d\n", d1.bolumNO, d1.dersID, d1.dersAd, d1.ogrGorNO);
+		// Check if the course is active
+		if (d1.durum == 1) {
+			char ogrGorAdi[20] = "Bilinmiyor"; // Default value if no match is found
+
+			// Reset the file pointer to the beginning of the file
+			rewind(ogrGorPtr);
+
+			// Search for the instructor in the instructors file
+			while (fread(&ogrGor, sizeof(ogr), 1, ogrGorPtr))
+			{
+				if (ogrGor.numara == d1.ogrGorNO)
+				{
+					strcpy(ogrGorAdi, ogrGor.adSoyad);
+					break;
+				}
+			}
+
+			printf("%-20d%-20d%-30s%-20d%-30s\n", d1.bolumNO, d1.dersID, d1.dersAd, d1.ogrGorNO, ogrGorAdi);
+		}
 	}
-	fclose(ptr);
+
+	fclose(dersPtr);
+	fclose(ogrGorPtr);
 }
 
 void dersSil()
@@ -884,12 +907,13 @@ void dersSil()
 	system("cls");
 	printf("Ders silme islemi... \n\n");
 
+	dersListele();
 	ders d1;
 	int numara, sayac = 0, sonuc = 0;
 
 	FILE *ptr = fopen("./data/dersler.dat", "r+b");
 
-	printf("Numara : ");
+	printf("Silinecek ders numarasi : ");
 	scanf("%d", &numara);
 	while (fread(&d1, sizeof(ders), 1, ptr) == 1)
 	{
@@ -984,6 +1008,8 @@ void notEkle()
 	fwrite(&numara, sizeof(int), 1, numPtr);
 	fclose(numPtr);
 
+	n1.durum = 1;
+
 	FILE *ptr = fopen("./data/notlar.dat", "a+b");
 	fwrite(&n1, sizeof(notlar), 1, ptr);
 	fclose(ptr);
@@ -996,15 +1022,46 @@ void notListele()
 	printf("Not listesi ... \n\n");
 
 	notlar n1;
+	ders d1;
+	ogr o1;
+	bolum b1;
 
-	FILE *ptr = fopen("./data/notlar.dat", "r+b");
-	printf("%-20s%-20s%-20s\n", "DERS-NO", "OGRENCI-NO", "PUAN");
-	while (fread(&n1, sizeof(notlar), 1, ptr))
+	FILE *notPtr = fopen("./data/notlar.dat", "r+b");
+	FILE *dersPtr = fopen("./data/dersler.dat", "r+b");
+	FILE *ogrPtr = fopen("./data/ogrenciler.dat", "r+b");
+	FILE *bolumPtr = fopen("./data/bolumler.dat", "r+b");
+
+	printf("%-20s%-30s%-20s%-30s%-20s%-30s\n", "NOT-ID", "DERS-ADI", "OGRENCI-NO", "OGRENCI-ADI", "PUAN", "BOLUM-ADI");
+
+	while (fread(&n1, sizeof(notlar), 1, notPtr))
 	{
-		if (n1.durum == 1)
-			printf("%-20d%-20d%.2f\n", n1.dersID, n1.ogrenciNO, n1.puan);
+		if (n1.durum == 1) {
+			rewind(dersPtr);
+			while (fread(&d1, sizeof(ders), 1, dersPtr)) {
+				if (d1.dersID == n1.dersID && d1.durum == 1) {
+					rewind(ogrPtr);
+					while (fread(&o1, sizeof(ogr), 1, ogrPtr)) {
+						if (o1.numara == n1.ogrenciNO && o1.durum == 1) {
+							rewind(bolumPtr);
+							while (fread(&b1, sizeof(bolum), 1, bolumPtr)) {
+								if (b1.bolumNO == n1.bolumNO && b1.durum == 1) {
+									printf("%-20d%-30s%-20d%-30s%-20.2f%-30s\n", n1.notID, d1.dersAd, n1.ogrenciNO, o1.adSoyad, n1.puan, b1.bolumAd);
+									break;
+								}
+							}
+							break;
+						}
+					}
+					break;
+				}
+			}
+		}
 	}
-	fclose(ptr);
+
+	fclose(notPtr);
+	fclose(dersPtr);
+	fclose(ogrPtr);
+	fclose(bolumPtr);
 }
 
 void notSil()
@@ -1017,6 +1074,7 @@ void notSil()
 
 	FILE *ptr = fopen("./data/notlar.dat", "r+b");
 
+	notListele();
 	printf("Numara : ");
 	scanf("%d", &numara);
 	while (fread(&n1, sizeof(notlar), 1, ptr) == 1)
@@ -1141,18 +1199,18 @@ int main()
 
 	do
 	{
-		printf("*********************************************\n");
-		printf("*                                           *\n");
-		printf("*                                           *\n");
-		printf("*         OGRENCI ISLERI OTOMASYONU         *\n");
-		printf("*                                           *\n");
-		printf("*                                           *\n");
-		printf("*              \t1. KAYIT OL                 *\n");
-		printf("*              \t2. GIRIS YAP                *\n");
-		printf("*              \t0. CIKIS                    *\n");
-		printf("*                                           *\n");
-		printf("*********************************************\n");
-		printf("\n\tSeciminiz:    ");
+		printf("\n\n\t\t*********************************************\n");
+		printf("\t\t*                                           *\n");
+		printf("\t\t*                                           *\n");
+		printf("\t\t*         OGRENCI ISLERI OTOMASYONU         *\n");
+		printf("\t\t*                                           *\n");
+		printf("\t\t*                                           *\n");
+		printf("\t\t*              \t1. KAYIT OL                 *\n");
+		printf("\t\t*              \t2. GIRIS YAP                *\n");
+		printf("\t\t*              \t0. CIKIS                    *\n");
+		printf("\t\t*                                           *\n");
+		printf("\t\t*********************************************\n");
+		printf("\n\t\tSeciminiz:    ");
 		scanf("%d", &secim);
 
 		switch (secim)
