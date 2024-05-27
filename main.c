@@ -162,7 +162,7 @@ void dataKlasoru() // Data klasörü oluşturma fonksiyonu.
 	}
 	else
 	{
-		printf("Dizin hatasÄ±: %s\n", folderPath);
+		printf("Dizin hatasi: %s\n", folderPath);
 	}
 }
 
@@ -336,6 +336,31 @@ void ogrEkle() // Sisteme öğrenci ekleme fonksiyonu.
 	printf("%d numarali ogrenci kaydi tamam \n", k.numara);
 }
 
+void ogrListele()
+{
+	printf("Ogrenci listele islemi... \n\n");
+
+	ogr k;
+	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b");
+
+	bolumListele();
+	int bolumNo, sayac = 0;
+	printf("Bolum No : ");
+	scanf("%d", &bolumNo);
+	system("cls");
+	printf("%-20s%-20s%-30s\n", "NUMARA", "TC", "AD-SOYAD"); // Öğrencinin bilgileri alındı.
+	while (fread(&k, sizeof(ogr), 1, ptr) == 1)
+	{
+		if (bolumNo == k.bolumNO && k.durum == 1)
+		{
+			printf("%-20d%-20s%-30s \n", k.numara, k.tc, k.adSoyad); // Hangi bölümün öğrencisi ise onu listeliyoruz.
+			sayac++;
+		}
+	}
+	fclose(ptr);
+	printf("\nBolumdeki toplam ogrenci sayisi : %d \n", sayac);
+}
+
 void ogrSil()
 {
 	system("cls");
@@ -346,7 +371,8 @@ void ogrSil()
 
 	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b"); // Okuma ve yazma formatın pointer oluşturduk.
 
-	printf("Numara : ");
+	ogrListele();
+	printf("Silinecek ogrenci numarasi : ");
 	scanf("%d", &numara);
 	while (fread(&k, sizeof(ogr), 1, ptr) == 1)
 	{
@@ -401,37 +427,16 @@ void ogrBul()
 		printf("TC          : %s \n", k.tc);
 		printf("Ad-Soyad    : %s \n", k.adSoyad);
 		printf("Bolumu      : %d \n", k.bolumNO);
-		printf("Durumu      : %d \n", k.durum);
+		if (k.durum == 1)
+			printf("Durumu      : %s \n", "Aktif");
+		else if (k.durum == 2)
+			printf("Durumu      : %s \n", "Mezun");
+		else
+			printf("Durumu      : %s \n", "Pasif");
 		printf("Adres       : %s \n", k.adres);
 		printf("Telefon     : %s \n", k.tel);
 	}
 	fclose(ptr);
-}
-
-void ogrListele()
-{
-	system("cls");
-	printf("Ogrenci listele islemi... \n\n");
-
-	ogr k;
-	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b");
-
-	bolumListele();
-	int bolumNo, sayac = 0;
-	printf("Bolum No : ");
-	scanf("%d", &bolumNo);
-	system("cls");
-	printf("%-20s%-20s%-30s\n", "NUMARA", "TC", "AD-SOYAD"); // Öğrencinin bilgileri alındı.
-	while (fread(&k, sizeof(ogr), 1, ptr) == 1)
-	{
-		if (bolumNo == k.bolumNO && k.durum == 1)
-		{
-			printf("%-20d%-20s%-30s \n", k.numara, k.tc, k.adSoyad); // Hangi bölümün öğrencisi ise onu listeliyoruz.
-			sayac++;
-		}
-	}
-	fclose(ptr);
-	printf("\nBolumdeki toplam ogrenci sayisi : %d \n", sayac);
 }
 
 void ogrBelgesi()
@@ -444,7 +449,9 @@ void ogrBelgesi()
 
 	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b");
 
-	printf("Numara : ");
+	ogrListele();
+
+	printf("Belgesi Olusturulacak Ogrenci : ");
 	scanf("%d", &numara);
 	while (fread(&k, sizeof(ogr), 1, ptr) == 1)
 	{
@@ -521,28 +528,51 @@ void ogrTranskript()
 		printf("%d numarali ogrenci bulunamadi \n", numara);
 	else
 	{
+		bolum b1;
+		FILE *bolumPtr = fopen("./data/bolumler.dat", "r+b");
+		fseek(bolumPtr, (k.bolumNO - 1) * sizeof(bolum), SEEK_SET);
+		fread(&b1, sizeof(bolum), 1, bolumPtr);
+		fclose(bolumPtr);
+
+		char *durumAdi;
+		if (k.durum == 0)
+			durumAdi = "Silinmis";
+		else if (k.durum == 1)
+			durumAdi = "Aktif";
+		else
+			durumAdi = "Mezun";
+
 		printf("%d numarali ogrenci BILGILERI \n\n", numara);
 		printf("TC          : %s \n", k.tc);
 		printf("Ad-Soyad    : %s \n", k.adSoyad);
-		printf("Bolumu      : %d \n", k.bolumNO);
-		printf("Durumu      : %d \n", k.durum);
+		printf("Bolumu      : %s \n", b1.bolumAd);
+		printf("Durumu      : %s \n", durumAdi);
 		printf("Adres       : %s \n", k.adres);
 		printf("Telefon     : %s \n", k.tel);
 
 		printf("NOT BILGILERI \n\n\n");
 
 		notlar n1;
+		ders d1;
 
 		FILE *file = fopen("./data/notlar.dat", "r+b");
-		printf("%-20s%-20s%-20s\n", "DERS-NO", "OGRENCI-NO", "PUAN");
+		FILE *dersFile = fopen("./data/dersler.dat", "r+b");
+
+		printf("%-20s%-20s%-20s%-30s\n", "DERS-NO", "DERS-ADI", "OGRENCI-NO", "PUAN");
 		while (fread(&n1, sizeof(notlar), 1, file))
 		{
-
 			if (numara == n1.ogrenciNO)
-				printf("%-20d%-20d%.2f\n", n1.dersID, n1.ogrenciNO, n1.puan);
+			{
+				// Ders bilgilerini oku
+				fseek(dersFile, (n1.dersID - 1) * sizeof(ders), SEEK_SET);
+				fread(&d1, sizeof(ders), 1, dersFile);
+				printf("%-20d%-20s%-20d%.2f\n", n1.dersID, d1.dersAd, n1.ogrenciNO, n1.puan);
+			}
 		}
 		fclose(file);
+		fclose(dersFile);
 	}
+	fclose(ptr);
 }
 void ogrMezun()
 {
@@ -553,6 +583,8 @@ void ogrMezun()
 	int numara, sonuc = 0, sayac = 0;
 
 	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b");
+
+	ogrListele();
 
 	printf("Numara : "); // Yine numara sorgulama yapolmıştır.
 	scanf("%d", &numara);
@@ -613,6 +645,7 @@ void ogrIslemleri()
 			ogrBul();
 			break;
 		case 4:
+			system("cls");
 			ogrListele();
 			break;
 		case 5:
@@ -679,6 +712,38 @@ void ogrGorEkle()
 	printf("%d numarali ogretim gorevlisi kaydi tamam \n", k.numara);
 }
 
+void ogrGorListele()
+{
+	system("cls");
+	printf("Ogretim gorevlileri... \n\n");
+
+	ogr k;
+	bolum b;
+	FILE *ptr = fopen("./data/ogretimGorevlileri.dat", "r+b");
+	FILE *bolumPtr = fopen("./data/bolumler.dat", "r+b");
+	int sayac = 0;
+
+	printf("%-20s%-20s%-30s%-30s\n", "NUMARA", "TC", "AD-SOYAD", "BOLUM ADI");
+	while (fread(&k, sizeof(ogr), 1, ptr) == 1)
+	{
+		if (k.durum == 1) { // Check if the instructor is active
+			rewind(bolumPtr);
+			while (fread(&b, sizeof(bolum), 1, bolumPtr) == 1)
+			{
+				if (b.bolumNO == k.bolumNO)
+				{
+					printf("%-20d%-20s%-30s%-30s\n", k.numara, k.tc, k.adSoyad, b.bolumAd);
+					break;
+				}
+			}
+			sayac++;
+		}
+	}
+	fclose(ptr);
+	fclose(bolumPtr);
+	printf("\nToplam ogretim gorevlisi sayisi : %d \n", sayac);
+}
+
 void ogrGorSil()
 {
 	system("cls");
@@ -689,7 +754,8 @@ void ogrGorSil()
 
 	FILE *ptr = fopen("./data/ogretimGorevlileri.dat", "r+b");
 
-	printf("Numara : ");
+	ogrGorListele();
+	printf("Silinecek Ogretim Gorevlisi Numarasi : ");
 	scanf("%d", &numara);
 	while (fread(&k, sizeof(ogr), 1, ptr) == 1)
 	{
@@ -752,36 +818,6 @@ void ogrGorBul()
 	fclose(ptr);
 }
 
-void ogrGorListele()
-{
-	system("cls");
-	printf("Ogretim gorevlisi listele islemi... \n\n");
-
-	ogr k;
-	bolum b;
-	FILE *ptr = fopen("./data/ogretimGorevlileri.dat", "r+b");
-	FILE *bolumPtr = fopen("./data/bolumler.dat", "r+b");
-	int sayac = 0;
-
-	printf("%-20s%-20s%-30s%-30s\n", "NUMARA", "TC", "AD-SOYAD", "BOLUM ADI");
-	while (fread(&k, sizeof(ogr), 1, ptr) == 1)
-	{
-		rewind(bolumPtr); // dosya pointerını başa alır.
-		while (fread(&b, sizeof(bolum), 1, bolumPtr) == 1) // Bolum bilgileri alınmaktadır.
-		{
-			if (b.bolumNO == k.bolumNO) // Eğer bolumNO eşit ise bolumAd bilgileri alınmaktadır.
-			{
-				printf("%-20d%-20s%-30s%-30s\n", k.numara, k.tc, k.adSoyad, b.bolumAd);
-				break; // Eğer eşit ise döngüden çıkılmaktadır.
-			}
-		}
-		sayac++;
-	}
-	fclose(ptr);
-	fclose(bolumPtr);
-	printf("\nToplam ogretim gorevlisi sayisi : %d \n", sayac);
-}
-
 int ogrGorMenu()
 {
 	int secim;
@@ -815,6 +851,7 @@ void ogrGorIslemleri()
 			ogrGorBul();
 			break;
 		case 4:
+			printf("Ogretim gorevlisi listeleme islemi... \n\n");
 			ogrGorListele();
 			break;
 		default:
@@ -981,6 +1018,7 @@ void notEkle()
 	printf("Not ekleme islemi... \n\n");
 	notlar n1;
 
+	ogrListele();
 	printf("Ogrenci Numarasi : ");
 	scanf(" %d", &n1.ogrenciNO);
 	dersListele();
