@@ -369,7 +369,7 @@ void ogrSil()
 	ogr k;
 	int numara, sayac = 0, sonuc = 0;
 
-	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b"); // Okuma ve yazma formatın pointer oluşturduk.
+	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b"); 
 
 	ogrListele();
 	printf("Silinecek ogrenci numarasi : ");
@@ -389,7 +389,7 @@ void ogrSil()
 	{
 		rewind(ptr);
 		fseek(ptr, (sayac) * sizeof(ogr), 0);
-		k.durum = 0; // Durum 0 ise öğrencinin kaydı silinmiştir ve ya dondurulmuştur.
+		k.durum = 0; 
 		fwrite(&k, sizeof(ogr), 1, ptr);
 		printf("%d numarali ogrenci kaydi silindi \n", numara);
 	}
@@ -450,7 +450,6 @@ void ogrBelgesi()
 	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b");
 
 	ogrListele();
-
 	printf("Belgesi Olusturulacak Ogrenci : ");
 	scanf("%d", &numara);
 	while (fread(&k, sizeof(ogr), 1, ptr) == 1)
@@ -466,7 +465,7 @@ void ogrBelgesi()
 		printf("%d numarali ogrenci bulunamadi \n", numara);
 	else
 	{
-		if (k.durum == 0) // Öğrencinin aktif mi yoksa mezun bir öğrenci mi olduğunu gösterilmiştir.
+		if (k.durum == 0) 
 		{
 			printf("%d numarali ogrencin kaydi SILINMISTIR . bilgileri asagidadir. \n", numara);
 			printf("TC          : %s \n", k.tc);
@@ -478,7 +477,7 @@ void ogrBelgesi()
 			printf("Telefon     : %s \n", k.tel);
 		}
 
-		else if (k.durum == 1) // Durum Eğer 1 ise aktif kayıtlı öğrencidir.
+		else if (k.durum == 1) 
 		{
 			printf("%d numarali ogrenci AKTIF kayitli ogrencidir . bilgileri asagidadir. \n", numara);
 			printf("TC          : %s \n", k.tc);
@@ -503,6 +502,7 @@ void ogrBelgesi()
 	}
 	fclose(ptr);
 }
+
 void ogrTranskript()
 {
 	system("cls");
@@ -1175,7 +1175,7 @@ void notIslemleri()
 	printf("Not islemlerinden cikis yaptiniz ... \n");
 }
 
-int menu()
+int  menu()
 {
 	int secim;
 	printf("\n\tOGRENCI ISLERI OTOMASYONU\n\n");
